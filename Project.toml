@@ -1,0 +1,28 @@
+name = "CorrectionFactorMatrixMethod"
+uuid = "1b32fdd5-07c8-465a-bf7d-415ac82a78be"
+version = "0.1.0"
+authors = ["""Joshua <joshua.tetzner@uni-rostock.de\n>"""]
+
+[deps]
+BlockSparseMatrices = "1ef78180-cc57-4e70-b6ec-c3e471307147"
+H2Trees = "9db26ae3-82ff-4374-85e9-9ed87405fd16"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+LinearMaps = "7a12625a-238d-50fd-b39a-03d52299707e"
+MKL = "33e6dc65-8f57-5167-99aa-e5a354878fb2"
+OhMyThreads = "67456a42-1dca-4109-a031-0a68de7e3ad5"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+
+[weakdeps]
+BEAST = "bb4162c7-ba94-5a20-af32-d8ec4428bdd1"
+CompScienceMeshes = "3e66a162-7b8c-5da0-b8f8-124ecd2c3ae1"
+ExaFMMt = "add1291b-d076-47cc-8667-64576de04ee0"
+
+[extensions]
+CFMMBEAST = ["BEAST", "CompScienceMeshes"]
+CFMMExaFMMt = ["ExaFMMt", "BEAST"]
+
+[compat]
+BlockSparseMatrices = "0.3.0"
+MKL = "0.6.3"
+OhMyThreads = "0.8.4"
+SparseArrays = "1.12.0"
