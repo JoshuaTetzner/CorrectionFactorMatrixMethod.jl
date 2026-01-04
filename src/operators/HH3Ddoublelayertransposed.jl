@@ -1,24 +1,27 @@
-using LinearAlgebra
-using LinearMaps
 
-struct CFMMMatrixHH3DDoubleLayerTransposed{K,OperatorType,SparseMatrixType} <:
-       LinearMaps.LinearMap{K}
+struct CFMMMatrixHH3DDoubleLayerTransposed{
+    K,OperatorType,FMMType,SparseMatrixType,NormalsType
+} <: LinearMaps.LinearMap{K}
     op::OperatorType
     fmm::FMMType
-    Bₜ::SparseMatrixType
-    Bₛ::SparseMatrixType
-    normals::Matrix{real(K)}
+    Btest::SparseMatrixType
+    Btrial::SparseMatrixType
+    normals::NormalsType
 
-    function CFMMMatrixHH3DDoubleLayerTransposed{K}(op, fmm, Bₜ, Bₛ, normals) where {K}
-        return new{scalartype(op),typeof(op),typeof(Bₜ)}(op, fmm, Bₜ, Bₛ, normals)
+    function CFMMMatrixHH3DDoubleLayerTransposed{K}(
+        op, fmm, Btest, Btrial, normals
+    ) where {K}
+        return new{scalartype(op),typeof(op),typeof(fmm),typeof(Btest),typeof(normals)}(
+            op, fmm, Btest, Btrial, normals
+        )
     end
 end
 
 function Base.size(A::CFMMMatrixHH3DDoubleLayerTransposed, dim=nothing)
     if dim === nothing
-        return (size(A.Bₜ, 1), size(A.Bₛ, 2))
+        return (size(A.Btest, 1), size(A.Btrial, 2))
     else
-        return (dim == 1 ? size(A.Bₜ, 1) : size(A.Bₛ, 2))
+        return (dim == 1 ? size(A.Btest, 1) : size(A.Btrial, 2))
     end
 end
 
@@ -41,12 +44,12 @@ end
         xfmm = x
     end
 
-    res = A.fmm * (A.B_trial * xfmm)
+    res = A.fmm.A * (A.Btrial * xfmm)
     fmm_res1 = A.normals[:, 1] .* (res)[:, 2]
     fmm_res2 = A.normals[:, 2] .* (res)[:, 3]
     fmm_res3 = A.normals[:, 3] .* (res)[:, 4]
 
-    y .= A.op.alpha .* (A.Bt_test * (fmm_res1 + fmm_res2 + fmm_res3))
+    y .= A.op.alpha .* (A.Btest * (fmm_res1 + fmm_res2 + fmm_res3))
 
     return y
 end
@@ -74,13 +77,13 @@ end
         xfmm = x
     end
 
-    xx = transpose(A.Bt_test) * xfmm
-    fmm_res1 = (A.fmm_t * (A.normals[:, 1] .* xx))[:, 2]
-    fmm_res2 = (A.fmm_t * (A.normals[:, 2] .* xx))[:, 3]
-    fmm_res3 = (A.fmm_t * (A.normals[:, 3] .* xx))[:, 4]
+    xx = transpose(A.Btest) * xfmm
+    fmm_res1 = (transpose(A.fmm) * (A.normals[:, 1] .* xx))[:, 2]
+    fmm_res2 = (transpose(A.fmm) * (A.normals[:, 2] .* xx))[:, 3]
+    fmm_res3 = (transpose(A.fmm) * (A.normals[:, 3] .* xx))[:, 4]
     fmm_res = -(fmm_res1 + fmm_res2 + fmm_res3)
 
-    y .= A.op.alpha .* (transpose(A.B_trial) * fmm_res)
+    y .= A.op.alpha .* (transpose(A.Btrial) * fmm_res)
     return y
 end
 

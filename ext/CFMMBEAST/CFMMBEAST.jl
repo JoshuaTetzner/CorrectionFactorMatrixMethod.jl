@@ -11,6 +11,11 @@ include("kernelmatrix.jl")
 include("quadstrat.jl")
 include("collocation.jl")
 include("operator/HH3Dsinglelayer.jl")
+include("operator/HH3Ddoublelayer.jl")
+include("operator/HH3Ddoublelayertransposed.jl")
+include("operator/HH3Dhypersingular.jl")
+include("operator/MW3Dsinglelayer.jl")
+include("operator/MW3Ddoublelayer.jl")
 
 function CorrectionFactorMatrixMethod.defaultnearquadstrat(
     operator::BEAST.IntegralOperator, testspace::BEAST.Space, trialspace::BEAST.Space

@@ -1,9 +1,12 @@
+using LinearAlgebra
+using LinearMaps
+
 include("HH3Dsinglelayer.jl")
-#include("HH3Ddoublelayer.jl")
-#include("HH3Dadjointdoublelayer.jl")
-#include("HH3Dhypersingular.jl")
-#include("MW3Dsinglelayer.jl")
-#include("MW3Ddoublelayer.jl")
+include("HH3Ddoublelayer.jl")
+include("HH3Ddoublelayertransposed.jl")
+include("HH3Dhypersingular.jl")
+include("MW3Dsinglelayer.jl")
+include("MW3Ddoublelayer.jl")
 
 abstract type FMMFunctor end
 
@@ -15,20 +18,12 @@ end
 
 FMMFunctor(; p=8, ncrit=50) = ExaFMMtFunctor(p, ncrit)
 
-#exafmmoptions(::Val{0}, p::Int, ncrit::Int) = LaplaceFMMOptions(; p=p, ncrit=ncrit)
-#exafmmoptions(gamma::Real, p::Int, ncrit::Int) =
-#    ModifiedHelmholtzFMMOptions(gamma; p=p, ncrit=ncrit)
-#exafmmoptions(gamma::Complex, p::Int, ncrit::Int) =
-#    HelmholtzFMMOptions(-gamma / im; p=p, ncrit=ncrit)
-
 function (functor::ExaFMMtFunctor)(operator)
-    return error("This function has to be implemented for ExaFMMtFunctor")#exafmmoptions(operator.gamma, functor.p, functor.ncrit)
+    return error("This function has to be implemented for ExaFMMtFunctor")
 end
 
 # FMM wrapper type to hold FMM and if computed its transpose/adjoint
-abstract type AbstractFMM end
-
-struct FMM{K,FMMType,TransposeFMMType} <: AbstractFMM
+struct FMM{K,FMMType,TransposeFMMType} <: LinearMaps.LinearMap{K}
     A::FMMType
     Aᵀ::TransposeFMMType
 
@@ -37,9 +32,17 @@ struct FMM{K,FMMType,TransposeFMMType} <: AbstractFMM
     end
 end
 Base.eltype(fmm::FMM) = eltype(fmm.A)
-transpose(fmm::FMM) = fmm.Aᵀ
+Base.size(fmm::FMM, dim=nothing) = size(fmm.A, dim)
 
-struct SymmetricFMM{K,FMMType} <: AbstractFMM
+LinearMaps._unsafe_mul!(y::AbstractVecOrMat, fmm::FMM, x::AbstractVector) =
+    mul!(y, fmm.A, x)
+LinearMaps._unsafe_mul!(
+    y::AbstractVecOrMat, fmm::LinearMaps.TransposeMap{<:Any,<:FMM}, x::AbstractVector
+) = mul!(y, fmm.lmap.Aᵀ, x)
+LinearMaps._unsafe_mul!(
+    y::AbstractVecOrMat, fmm::LinearMaps.AdjointMap{<:Any,<:FMM}, x::AbstractVector
+) = error("Adjoint multiplication not implemented for FMM")
+struct SymmetricFMM{K,FMMType} <: LinearMaps.LinearMap{K}
     A::FMMType
 
     function SymmetricFMM{K}(A) where {K}
@@ -47,7 +50,18 @@ struct SymmetricFMM{K,FMMType} <: AbstractFMM
     end
 end
 Base.eltype(fmm::SymmetricFMM) = eltype(fmm.A)
-transpose(fmm::SymmetricFMM) = fmm.A
+Base.size(fmm::SymmetricFMM, dim=nothing) = size(fmm.A, dim)
+
+LinearMaps._unsafe_mul!(y::AbstractVecOrMat, fmm::SymmetricFMM, x::AbstractVector) =
+    mul!(y, fmm.A, x)
+LinearMaps._unsafe_mul!(
+    y::AbstractVecOrMat,
+    fmm::LinearMaps.TransposeMap{<:Any,<:SymmetricFMM},
+    x::AbstractVector,
+) = mul!(y, fmm.lmap.A, x)
+LinearMaps._unsafe_mul!(
+    y::AbstractVecOrMat, fmm::LinearMaps.AdjointMap{<:Any,<:SymmetricFMM}, x::AbstractVector
+) = error("Adjoint multiplication not implemented for SymmetricFMM")
 
 function FMM(A::T) where {T}
     return SymmetricFMM{eltype(A)}(A)

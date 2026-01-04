@@ -1,78 +1,49 @@
-using BEAST
-using ExaFMMt
-using LinearAlgebra
-using LinearMaps
-using SparseArrays
-
-function FMMMatrix(
-    ::Type{BEAST.HH3DHyperSingularFDBIO},
+function (fmmfunctor::CorrectionFactorMatrixMethod.ExaFMMtFunctor)(
+    operator::T,
     testspace::BEAST.Space,
     trialspace::BEAST.Space,
     testqp::Matrix,
     trialqp::Matrix,
-    fmm::FMM,
-)
-    normals_trial, B1curl, B2curl, B3curl, B, normals_test, B1curl_test, B2curl_test, B3curl_test, B_test = sample_basisfunctions(
-        op, test_functions, trial_functions, testqp, trialqp
+    fmm;
+    ntasks=Threads.nthreads(),
+) where {T<:BEAST.HH3DHyperSingularFDBIO}
+    testnormals, curlBtest, Btest, trialnormals, curlBtrial, Btrial = HH3DHSpotentialmatrix(
+        testspace, trialspace, testqp, trialqp
     )
 
-    return FMMMatrixHS(
-        fmm,
-        fmm_t,
-        op,
-        normals_trial,
-        normals_test,
-        B1curl,
-        B2curl,
-        B3curl,
-        B1curl_test,
-        B2curl_test,
-        B3curl_test,
-        B,
-        B_test,
-        BtCB,
-        fullmat,
-        size(fullmat)[1],
-        size(fullmat)[2],
+    return FMMMatrixHS{scalartype(operator)}(
+        operator, fmm, testnormals, trialnormals, curlBtest, curlBtrial, Btest, Btrial
     )
 end
 
-function sample_basisfunctions(
-    op::BEAST.HH3DHyperSingularFDBIO,
-    test_functions::BEAST.Space,
-    trial_functions::BEAST.Space,
-    testqp::Matrix,
-    trialqp::Matrix,
+function HH3DHSpotentialmatrix(
+    testspace::BEAST.Space, trialspace::BEAST.Space, testqp::Matrix, trialqp::Matrix
 )
-    normals_trial = getnormals(trialqp)
-    normals_test = getnormals(testqp)
-    rc_curl, vals_curl = sample_curlbasisfunctions(trialqp, trial_functions)
-    B1curl = dropzeros(sparse(rc_curl[:, 1], rc_curl[:, 2], vals_curl[:, 1]))
-    B2curl = dropzeros(sparse(rc_curl[:, 1], rc_curl[:, 2], vals_curl[:, 2]))
-    B3curl = dropzeros(sparse(rc_curl[:, 1], rc_curl[:, 2], vals_curl[:, 3]))
-    B1curl_test, B2curl_test, B3curl_test = B1curl, B2curl, B3curl
+    testnormals = getnormals(testqp)
+    rc_curl, vals_curl = curlpotentials(testqp, testspace)
+    curlBtest = [
+        dropzeros(sparse(rc_curl[:, 1], rc_curl[:, 2], vals_curl[:, 1])),
+        dropzeros(sparse(rc_curl[:, 1], rc_curl[:, 2], vals_curl[:, 2])),
+        dropzeros(sparse(rc_curl[:, 1], rc_curl[:, 2], vals_curl[:, 3])),
+    ]
 
-    rc, vals = sample_basisfunctions(op, trialqp, trial_functions)
-    B = dropzeros(sparse(rc[:, 1], rc[:, 2], vals))
-    B_test = B
+    rc, vals = potentials(testqp, testspace)
+    Btest = dropzeros(sparse(rc[:, 1], rc[:, 2], vals))
 
-    if test_functions != trial_functions
-        normals_test = getnormals(testqp)
-        rc_curl, vals_curl = sample_curlbasisfunctions(testqp, test_functions)
-        B1curl_test = dropzeros(sparse(rc_curl[:, 2], rc_curl[:, 1], vals_curl[:, 1]))
-        B2curl_test = dropzeros(sparse(rc_curl[:, 2], rc_curl[:, 1], vals_curl[:, 2]))
-        B3curl_test = dropzeros(sparse(rc_curl[:, 2], rc_curl[:, 1], vals_curl[:, 3]))
+    testspace == trialspace && return testnormals,
+    curlBtest, Btest, testnormals, sparse.(transpose(curlBtest)),
+    sparse(transpose(Btest))
 
-        rc, vals = sample_basisfunctions(op, testqp, test_functions)
-        B_test = dropzeros(sparse(rc[:, 2], rc[:, 1], vals))
-    else
-        B1curl_test = sparse(transpose(B1curl))
-        B2curl_test = sparse(transpose(B2curl))
-        B3curl_test = sparse(transpose(B3curl))
-        B_test = sparse(transpose(B))
-    end
+    trialnormals = getnormals(trialqp)
+    rc_curl, vals_curl = curlpotentials(trialqp, trialspace)
+    curlBtrial = [
+        dropzeros(sparse(rc_curl[:, 2], rc_curl[:, 1], vals_curl[:, 1])),
+        dropzeros(sparse(rc_curl[:, 2], rc_curl[:, 1], vals_curl[:, 2])),
+        dropzeros(sparse(rc_curl[:, 2], rc_curl[:, 1], vals_curl[:, 3])),
+    ]
 
-    return normals_trial,
-    B1curl, B2curl, B3curl, B, normals_test, B1curl_test, B2curl_test, B3curl_test,
-    B_test
+    rc, vals = potentials(trialqp, trialspace)
+    Btrial = dropzeros(sparse(rc[:, 2], rc[:, 1], vals))
+
+    return testnormals, curlBtest, Btest, trialnormals, curlBtrial, Btrial
 end

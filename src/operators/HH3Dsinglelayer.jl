@@ -1,25 +1,23 @@
-using LinearAlgebra
-using LinearMaps
 
 struct CFMMMatrixHH3DSingleLayer{K,OperatorType,FMMType,SparseMatrixType} <:
        LinearMaps.LinearMap{K}
     operator::OperatorType
     fmm::FMMType
-    Bₜ::SparseMatrixType
-    Bₛ::SparseMatrixType
+    Btest::SparseMatrixType
+    Btrial::SparseMatrixType
 
-    function CFMMMatrixHH3DSingleLayer{K}(operator, fmm, Bₜ, Bₛ) where {K}
-        return new{scalartype(operator),typeof(operator),typeof(fmm),typeof(Bₜ)}(
-            operator, fmm, Bₜ, Bₛ
+    function CFMMMatrixHH3DSingleLayer{K}(operator, fmm, Btest, Btrial) where {K}
+        return new{scalartype(operator),typeof(operator),typeof(fmm),typeof(Btest)}(
+            operator, fmm, Btest, Btrial
         )
     end
 end
 
 function Base.size(A::CFMMMatrixHH3DSingleLayer, dim=nothing)
     if dim === nothing
-        return (size(A.Bₜ, 1), size(A.Bₛ, 2))
+        return (size(A.Btest, 1), size(A.Btrial, 2))
     else
-        return (dim == 1 ? size(A.Bₜ, 1) : size(A.Bₛ, 2))
+        return (dim == 1 ? size(A.Btest, 1) : size(A.Btrial, 2))
     end
 end
 
@@ -37,7 +35,7 @@ end
 
     eltype(x) != eltype(A.fmm) ? (xfmm = eltype(A.fmm).(x)) : (xfmm = x)
 
-    y .= alpha(A.operator) .* (A.Bₜ * (A.fmm.A * (A.Bₛ * xfmm))[:, 1])
+    y .= alpha(A.operator) .* (A.Btest * (A.fmm.A * (A.Btrial * xfmm))[:, 1])
 
     return y
 end
@@ -61,7 +59,7 @@ end
 
     y .=
         A.op.alpha .*
-        (transpose(A.Bₛ) * (transpose(A.fmm) * (transpose(A.Bₜ) * xfmm))[:, 1])
+        (transpose(A.Btrial) * (transpose(A.fmm) * (transpose(A.Btest) * xfmm))[:, 1])
 
     return y
 end
