@@ -23,6 +23,7 @@ CFMMExaFMMt = ["ExaFMMt", "BEAST"]
 
 [compat]
 BlockSparseMatrices = "0.3.0"
+H2Trees = "0.1"
 MKL = "0.6.3"
 OhMyThreads = "0.8.4"
 SparseArrays = "1.12.0"
