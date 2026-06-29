@@ -1,0 +1,8 @@
+[deps]
+CorrectionFactorMatrixMethod = "1b32fdd5-07c8-465a-bf7d-415ac82a78be"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+CorrectionFactorMatrixMethod = "0.1"
+Documenter = "1"
+julia = "1.10"

@@ -15,6 +15,17 @@ end
 
 function scalartype(operator) end
 
+"""
+    PetrovGalerkinCFMM(operator, testspace, trialspace, tree; kwargs...)
+
+Construct a matrix-free Petrov-Galerkin operator whose far interactions are
+evaluated by a fast multipole method and whose near interactions are corrected
+by direct quadrature.
+
+The concrete operator and space methods are supplied by package extensions.
+Loading `BEAST`, `CompScienceMeshes`, and `ExaFMMt` enables the supported
+boundary-element implementation.
+"""
 function PetrovGalerkinCFMM(
     operator,
     testspace,

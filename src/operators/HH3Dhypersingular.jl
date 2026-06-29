@@ -19,7 +19,7 @@ struct CFMMMatrixHH3DHyperSingular{K,OperatorType,FMMType,NormalsType,SparseMatr
             typeof(testnormals),
             typeof(Btest),
         }(
-            op, fmm, testnormals, trialnormals, curlBtest, curlBtrial, Btest, Btrial
+            operator, fmm, testnormals, trialnormals, curlBtest, curlBtrial, Btest, Btrial
         )
     end
 end
@@ -50,7 +50,7 @@ end
     else
         xfmm = x
     end
-    if A.op.alpha != 0.0
+    if A.operator.alpha != 0.0
         fmm_res1 =
             A.testnormals[:, 1] .*
             (A.fmm * (A.trialnormals[:, 1] .* (A.Btrial * xfmm)))[:, 1]
