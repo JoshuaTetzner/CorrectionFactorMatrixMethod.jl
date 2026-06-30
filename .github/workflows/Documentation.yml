@@ -26,6 +26,20 @@ jobs:
         with:
           version: "1"
       - uses: julia-actions/cache@v3
+      - name: Ensure General registry
+        run: |
+          julia -e '
+            using Pkg
+            if isempty(Pkg.Registry.reachable_registries())
+              try
+                Pkg.Registry.add()
+              catch
+                ENV["JULIA_PKG_SERVER"] = ""
+                Pkg.Registry.add(Pkg.RegistrySpec(
+                  url="https://github.com/JuliaRegistries/General.git",
+                ))
+              end
+            end'
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
