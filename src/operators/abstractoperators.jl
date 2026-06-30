@@ -16,6 +16,20 @@ struct ExaFMMtFunctor <: FMMFunctor
     ncrit::Int
 end
 
+"""
+    FMMFunctor(; p=8, ncrit=50)
+
+Configure the fast multipole method used for the far interactions.
+
+`p` is the expansion order and `ncrit` the critical leaf size, i.e. the maximum
+number of quadrature points per box. A larger `p` increases accuracy and cost,
+while `ncrit` trades tree depth against the size of the direct near-field
+blocks.
+
+The returned functor is passed as the `fmmfunctor` keyword to
+[`CFMM.assemble`](@ref) and [`PetrovGalerkinCFMM`](@ref); its default targets
+the ExaFMMt backend.
+"""
 FMMFunctor(; p=8, ncrit=50) = ExaFMMtFunctor(p, ncrit)
 
 function (functor::ExaFMMtFunctor)(operator)
@@ -32,16 +46,22 @@ struct FMM{K,FMMType,TransposeFMMType} <: LinearMaps.LinearMap{K}
     end
 end
 Base.eltype(fmm::FMM) = eltype(fmm.A)
-Base.size(fmm::FMM, dim=nothing) = size(fmm.A, dim)
+Base.size(fmm::FMM) = size(fmm.A)
+Base.size(fmm::FMM, dim::Integer) = size(fmm.A, dim)
 
-LinearMaps._unsafe_mul!(y::AbstractVecOrMat, fmm::FMM, x::AbstractVector) =
-    mul!(y, fmm.A, x)
-LinearMaps._unsafe_mul!(
+function LinearMaps._unsafe_mul!(y::AbstractVecOrMat, fmm::FMM, x::AbstractVector)
+    return mul!(y, fmm.A, x)
+end
+function LinearMaps._unsafe_mul!(
     y::AbstractVecOrMat, fmm::LinearMaps.TransposeMap{<:Any,<:FMM}, x::AbstractVector
-) = mul!(y, fmm.lmap.Aᵀ, x)
-LinearMaps._unsafe_mul!(
+)
+    return mul!(y, fmm.lmap.Aᵀ, x)
+end
+function LinearMaps._unsafe_mul!(
     y::AbstractVecOrMat, fmm::LinearMaps.AdjointMap{<:Any,<:FMM}, x::AbstractVector
-) = error("Adjoint multiplication not implemented for FMM")
+)
+    return error("Adjoint multiplication not implemented for FMM")
+end
 struct SymmetricFMM{K,FMMType} <: LinearMaps.LinearMap{K}
     A::FMMType
 
@@ -50,18 +70,24 @@ struct SymmetricFMM{K,FMMType} <: LinearMaps.LinearMap{K}
     end
 end
 Base.eltype(fmm::SymmetricFMM) = eltype(fmm.A)
-Base.size(fmm::SymmetricFMM, dim=nothing) = size(fmm.A, dim)
+Base.size(fmm::SymmetricFMM) = size(fmm.A)
+Base.size(fmm::SymmetricFMM, dim::Integer) = size(fmm.A, dim)
 
-LinearMaps._unsafe_mul!(y::AbstractVecOrMat, fmm::SymmetricFMM, x::AbstractVector) =
-    mul!(y, fmm.A, x)
-LinearMaps._unsafe_mul!(
+function LinearMaps._unsafe_mul!(y::AbstractVecOrMat, fmm::SymmetricFMM, x::AbstractVector)
+    return mul!(y, fmm.A, x)
+end
+function LinearMaps._unsafe_mul!(
     y::AbstractVecOrMat,
     fmm::LinearMaps.TransposeMap{<:Any,<:SymmetricFMM},
     x::AbstractVector,
-) = mul!(y, fmm.lmap.A, x)
-LinearMaps._unsafe_mul!(
+)
+    return mul!(y, fmm.lmap.A, x)
+end
+function LinearMaps._unsafe_mul!(
     y::AbstractVecOrMat, fmm::LinearMaps.AdjointMap{<:Any,<:SymmetricFMM}, x::AbstractVector
-) = error("Adjoint multiplication not implemented for SymmetricFMM")
+)
+    return error("Adjoint multiplication not implemented for SymmetricFMM")
+end
 
 function FMM(A::T) where {T}
     return SymmetricFMM{eltype(A)}(A)
@@ -102,6 +128,13 @@ function setup(spoints, tpoints, options)
     return error("This function has to be implemented for ", typeof(options))
 end
 
+function fmmresult end
+
+fmmresult(fmm::FMM, x) = fmmresult(fmm.A, x)
+fmmresult(fmm::LinearMaps.TransposeMap{<:Any,<:FMM}, x) = fmmresult(fmm.lmap.Aᵀ, x)
+fmmresult(fmm::SymmetricFMM, x) = fmmresult(fmm.A, x)
+fmmresult(fmm::LinearMaps.TransposeMap{<:Any,<:SymmetricFMM}, x) = fmmresult(fmm.lmap.A, x)
+
 function setup_fmm(
     spoints::Matrix{F}, tpoints::Matrix{F}, options; computetransposeadjoint=false
 ) where {F<:Real}
@@ -116,17 +149,18 @@ function (fmmfunctor::FMMFunctor)(
     trialspace;
     farquadstrat=defaultfarquadstrat(operator, testspace, trialspace),
     computetransposeadjoint=false,
-    ntasks=Threads.nthreads(),
+    scheduler=DynamicScheduler(),
 )
     testsrcs, testqp = sources(testspace, farquadstrat.outer_rule)
     trialsrcs, trialqp = sources(trialspace, farquadstrat.inner_rule)
+    computetransposeadjoint |= testsrcs != trialsrcs
 
     fmm = setup_fmm(
-        testsrcs,
         trialsrcs,
+        testsrcs,
         fmmfunctor(operator);
         computetransposeadjoint=computetransposeadjoint,
     )
 
-    return fmmfunctor(operator, testspace, trialspace, testqp, trialqp, fmm; ntasks=ntasks)
+    return fmmfunctor(operator, testspace, trialspace, testqp, trialqp, fmm; scheduler)
 end

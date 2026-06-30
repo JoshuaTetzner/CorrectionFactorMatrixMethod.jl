@@ -1,12 +1,19 @@
-exafmmoptions(
+function exafmmoptions(
     gamma::T, fmm::CorrectionFactorMatrixMethod.ExaFMMtFunctor
-) where {T<:Val{0}} = LaplaceFMMOptions(; p=fmm.p, ncrit=fmm.ncrit)
+) where {T<:Val{0}}
+    return LaplaceFMMOptions(; p=fmm.p, ncrit=fmm.ncrit)
+end
 #TODO: Write unit tests for the ModifiedHelmholtzFMMOptions
-exafmmoptions(gamma::T, fmm::CorrectionFactorMatrixMethod.ExaFMMtFunctor) where {T<:Real} =
-    ModifiedHelmholtzFMMOptions(gamma; p=fmm.p, ncrit=fmm.ncrit)
-exafmmoptions(
+function exafmmoptions(
     gamma::T, fmm::CorrectionFactorMatrixMethod.ExaFMMtFunctor
-) where {T<:Complex} = HelmholtzFMMOptions(-gamma / im; p=fmm.p, ncrit=fmm.ncrit)
+) where {T<:Real}
+    return ModifiedHelmholtzFMMOptions(gamma; p=fmm.p, ncrit=fmm.ncrit)
+end
+function exafmmoptions(
+    gamma::T, fmm::CorrectionFactorMatrixMethod.ExaFMMtFunctor
+) where {T<:Complex}
+    return HelmholtzFMMOptions(-gamma / im; p=fmm.p, ncrit=fmm.ncrit)
+end
 
 function (functor::CorrectionFactorMatrixMethod.ExaFMMtFunctor)(
     operator::BEAST.IntegralOperator

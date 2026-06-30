@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "CorrectionFactorMatrixMethod.jl"
+type: software
+authors:
+  - family-names: Tetzner
+    given-names: Joshua
+repository-code: "https://github.com/JoshuaTetzner/CorrectionFactorMatrixMethod.jl"
+url: "https://JoshuaTetzner.github.io/CorrectionFactorMatrixMethod.jl/"
+license: MIT
+version: 0.1.0
+# doi: "Add the Zenodo DOI after the first archived release."

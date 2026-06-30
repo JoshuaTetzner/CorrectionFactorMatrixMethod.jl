@@ -1,8 +1,12 @@
+.vscode/
+*.dat
+*.jld2
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
+*.mem
+lcov.info
 /Manifest.toml
 /docs/Manifest.toml
 /docs/build/
-lcov.info
-*.vscode
+/docs/site/

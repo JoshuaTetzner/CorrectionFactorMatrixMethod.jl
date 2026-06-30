@@ -11,7 +11,7 @@ struct CFMMMatrixMW3DSingleLayer{K,OperatorType,FMMType,SparseMatrixType} <:
     function CFMMMatrixMW3DSingleLayer{K}(
         operator, fmm, Btest, Btrial, divBtest, divBtrial
     ) where {K}
-        return new{scalartype(operator),typeof(operator),typeof(fmm),typeof(Btest)}(
+        return new{scalartype(operator),typeof(operator),typeof(fmm),eltype(Btest)}(
             operator, fmm, Btest, Btrial, divBtest, divBtrial
         )
     end

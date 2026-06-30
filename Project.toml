@@ -1,7 +1,7 @@
 name = "CorrectionFactorMatrixMethod"
 uuid = "1b32fdd5-07c8-465a-bf7d-415ac82a78be"
 version = "0.1.0"
-authors = ["""Joshua <joshua.tetzner@uni-rostock.de\n>"""]
+authors = ["Joshua Tetzner <joshua.tetzner@uni-rostock.de>"]
 
 [deps]
 BlockSparseMatrices = "1ef78180-cc57-4e70-b6ec-c3e471307147"
@@ -22,8 +22,47 @@ CFMMBEAST = ["BEAST", "CompScienceMeshes"]
 CFMMExaFMMt = ["ExaFMMt", "BEAST"]
 
 [compat]
-BlockSparseMatrices = "0.3.0"
-CompScienceMeshes = "0.12"
-MKL = "0.6.3"
-OhMyThreads = "0.8.4"
-SparseArrays = "1.12.0"
+Aqua = "0.8"
+BEAST = "2"
+BlockSparseMatrices = "0.3"
+CompScienceMeshes = "0.11, 0.12"
+ExaFMMt = "0.1"
+ExplicitImports = "1"
+H2Trees = "0.3"
+JET = "0.9, 0.10, 0.11"
+JuliaFormatter = "2"
+LinearAlgebra = "1.10"
+LinearMaps = "3"
+MKL = "0.9"
+OhMyThreads = "0.8"
+SparseArrays = "1.10"
+StaticArrays = "1"
+Test = "1.10"
+TestItemRunner = "1"
+TestItems = "1"
+julia = "1.10"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
+TestItems = "1c621080-faea-4a02-84b6-bbd5e436b8fe"
+
+[targets]
+test = [
+    "Aqua",
+    "BEAST",
+    "CompScienceMeshes",
+    "ExaFMMt",
+    "ExplicitImports",
+    "JET",
+    "JuliaFormatter",
+    "StaticArrays",
+    "Test",
+    "TestItemRunner",
+    "TestItems",
+]

@@ -4,7 +4,7 @@ function CorrectionFactorMatrixMethod.AbstractCorrectedKernelMatrix(
     testspace::BEAST.Space,
     trialspace::BEAST.Space;
     nearquadstrat=BEAST.defaultquadstrat(operator, testspace, trialspace),
-    farquadstrat=SafeDoubleNumQStrat(operator, testspace, trialspace),
+    farquadstrat=SafeDoubleNumQStrat(3, 3),
 )
     return CorrectionFactorMatrixMethod.BEASTCorrectedKernelMatrix{scalartype(operator)}(
         BEAST.blockassembler(operator, testspace, trialspace; quadstrat=nearquadstrat),
@@ -31,7 +31,7 @@ function (f::BlockCorrectionFunctor)(v, m, n)
 end
 
 function (blk::CorrectionFactorMatrixMethod.BEASTCorrectedKernelMatrix)(
-    tdata, sdata, matrixblock
+    matrixblock, tdata, sdata
 )
     blk.nearassembler(tdata, sdata, BlockStoreFunctor(matrixblock))
     blk.correctionassembler(tdata, sdata, BlockCorrectionFunctor(matrixblock))

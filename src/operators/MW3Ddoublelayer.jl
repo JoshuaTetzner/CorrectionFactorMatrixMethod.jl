@@ -7,7 +7,7 @@ struct CFMMMatrixMW3DDoubleLayer{K,OperatorType,FMMType,SparseMatrixType} <:
     Btrial::Vector{SparseMatrixType}
 
     function CFMMMatrixMW3DDoubleLayer{K}(operator, fmm, Btest, Btrial) where {K}
-        return new{scalartype(operator),typeof(operator),typeof(fmm),typeof(Btest)}(
+        return new{scalartype(operator),typeof(operator),typeof(fmm),eltype(Btest)}(
             operator, fmm, Btest, Btrial
         )
     end
@@ -31,9 +31,9 @@ end
     end
     fill!(y, zero(K))
 
-    res1 = (A.fmm * (A.Btrial[1] * x))[:, 2:4]
-    res2 = (A.fmm * (A.Btrial[2] * x))[:, 2:4]
-    res3 = (A.fmm * (A.Btrial[3] * x))[:, 2:4]
+    res1 = fmmresult(A.fmm, A.Btrial[1] * x)[:, 2:4]
+    res2 = fmmresult(A.fmm, A.Btrial[2] * x)[:, 2:4]
+    res3 = fmmresult(A.fmm, A.Btrial[3] * x)[:, 2:4]
 
     y1 = A.Btest[1] * (res3[:, 2] - res2[:, 3])
     y2 = A.Btest[2] * (res1[:, 3] - res3[:, 1])
@@ -57,9 +57,9 @@ end
     end
     fill!(y, zero(K))
 
-    res1 = (transpose(A.fmm) * (transpose(A.Btest[1]) * x))[:, 2:4]
-    res2 = (transpose(A.fmm) * (transpose(A.Btest[2]) * x))[:, 2:4]
-    res3 = (transpose(A.fmm) * (transpose(A.Btest[3]) * x))[:, 2:4]
+    res1 = fmmresult(transpose(A.fmm), transpose(A.Btest[1]) * x)[:, 2:4]
+    res2 = fmmresult(transpose(A.fmm), transpose(A.Btest[2]) * x)[:, 2:4]
+    res3 = fmmresult(transpose(A.fmm), transpose(A.Btest[3]) * x)[:, 2:4]
 
     y1 = transpose(A.Btrial[1]) * (res3[:, 2] - res2[:, 3])
     y2 = transpose(A.Btrial[2]) * (res1[:, 3] - res3[:, 1])

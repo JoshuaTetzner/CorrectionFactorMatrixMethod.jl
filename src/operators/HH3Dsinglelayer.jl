@@ -58,7 +58,7 @@ end
     eltype(x) != eltype(A.fmm) ? (xfmm = eltype(A.fmm).(x)) : (xfmm = x)
 
     y .=
-        A.op.alpha .*
+        alpha(A.operator) .*
         (transpose(A.Btrial) * (transpose(A.fmm) * (transpose(A.Btest) * xfmm))[:, 1])
 
     return y

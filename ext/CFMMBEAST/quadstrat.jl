@@ -22,7 +22,7 @@ function BEAST.quaddata(
     trial_elements,
     qs::SafeDoubleNumQStrat,
 )
-    test_quad_data  = BEAST.quadpoints(local_test_basis, test_elements, (qs.outer_rule,))
+    test_quad_data = BEAST.quadpoints(local_test_basis, test_elements, (qs.outer_rule,))
     trial_quad_data = BEAST.quadpoints(local_trial_basis, trial_elements, (qs.inner_rule,))
 
     return test_quad_data, trial_quad_data
