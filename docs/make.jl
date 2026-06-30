@@ -9,7 +9,7 @@ DocMeta.setdocmeta!(
 )
 
 makedocs(;
-    modules=[CorrectionFactorMatrixMethod],
+    modules=[CorrectionFactorMatrixMethod, CorrectionFactorMatrixMethod.CFMM],
     authors="Joshua Tetzner",
     repo=Remotes.GitHub("JoshuaTetzner", "CorrectionFactorMatrixMethod.jl"),
     sitename="CorrectionFactorMatrixMethod.jl",
@@ -20,10 +20,8 @@ makedocs(;
     ),
     pages=[
         "Introduction" => "index.md",
-        "Manual" => [
-            "General Usage" => "manual/manual.md",
-            "Application Example" => "manual/examples.md",
-        ],
+        "Manual" =>
+            ["General Usage" => "manual/manual.md", "Examples" => "manual/examples.md"],
         "Details" => [
             "Correction-Factor Method" => "details/method.md",
             "Package Extensions" => "details/extensions.md",

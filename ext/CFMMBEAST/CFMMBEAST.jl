@@ -1,10 +1,11 @@
 module CFMMBEAST
 
 using CorrectionFactorMatrixMethod
-import CorrectionFactorMatrixMethod: FMMFunctor, potentials, sources
+import CorrectionFactorMatrixMethod: curlpotentials, divpotentials, normals, potentials
 
 using BEAST
 using CompScienceMeshes
+using H2Trees
 using SparseArrays
 
 include("kernelmatrix.jl")
@@ -33,6 +34,14 @@ end
 
 function CorrectionFactorMatrixMethod.beta(operator::BEAST.IntegralOperator)
     return operator.beta
+end
+
+function CorrectionFactorMatrixMethod.defaultminhalfsize(
+    testspace::BEAST.Space, trialspace::BEAST.Space
+)
+    _, testhalfsize = H2Trees.boundingbox(BEAST.positions(testspace))
+    _, trialhalfsize = H2Trees.boundingbox(BEAST.positions(trialspace))
+    return max(testhalfsize, trialhalfsize) / 2^10
 end
 
 end

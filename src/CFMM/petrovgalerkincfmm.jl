@@ -1,11 +1,14 @@
-struct PetrovGalerkinCFMM{K,CorrectedNearsType,FMMType} <: LinearMaps.LinearMap{K}
+struct PetrovGalerkinCFMM{K,CorrectedNearsType,FMMType,SchedulerType} <:
+       LinearMaps.LinearMap{K}
     correctednears::CorrectedNearsType
     fmm::FMMType
     dim::Tuple{Int,Int}
-    ntasks::Int
+    scheduler::SchedulerType
 
-    function PetrovGalerkinCFMM{K}(correctednears, fmm, dim, ntasks) where {K}
-        return new{K,typeof(correctednears),typeof(fmm)}(correctednears, fmm, dim, ntasks)
+    function PetrovGalerkinCFMM{K}(correctednears, fmm, dim, scheduler) where {K}
+        return new{K,typeof(correctednears),typeof(fmm),typeof(scheduler)}(
+            correctednears, fmm, dim, scheduler
+        )
     end
 end
 
@@ -34,65 +37,57 @@ function PetrovGalerkinCFMM(
     fmmfunctor=FMMFunctor(),
     nearquadstrat=defaultnearquadstrat(operator, testspace, trialspace),
     farquadstrat=defaultfarquadstrat(operator, testspace, trialspace),
-    ntasks=Threads.nthreads(),
+    scheduler=DynamicScheduler(),
     isnear=H2Trees.isnear,
     computetransposeadjoint=false,
 )
-    correctedkernelmatrix = AbstractCorrectedKernelMatrix(
+    correctednears = assemblecorrectednears(
         operator,
         testspace,
-        trialspace;
+        trialspace,
+        tree;
         nearquadstrat=nearquadstrat,
         farquadstrat=farquadstrat,
-    )
-    values, nearvalues = nearinteractions(tree; isnear=isnear)
-    blocks = tmap(values, nearvalues) do v, nv
-        blk = zeros(scalartype(operator), length(v), length(nv))
-        correctedkernelmatrix(v, nv, blk)
-        return blk
-    end
-    correctednears = BlockSparseMatrix(
-        blocks, values, nearvalues, length(testspace), length(trialspace)
+        scheduler=scheduler,
+        isnear=isnear,
     )
 
     fmm = fmmfunctor(
         operator,
         testspace,
         trialspace;
-        ntasks=ntasks,
+        scheduler=scheduler,
         farquadstrat=farquadstrat,
         computetransposeadjoint=computetransposeadjoint,
     )
 
     return PetrovGalerkinCFMM{scalartype(operator)}(
-        correctednears, fmm, (length(testspace), length(trialspace)), ntasks
+        correctednears, fmm, (length(testspace), length(trialspace)), scheduler
     )
 end
 
-function LinearMaps.mul!(
-    y::AbstractVector{K}, A::PetrovGalerkinCFMM{K}, x::AbstractVector{K}
-) where {K}
+function LinearMaps.mul!(y::AbstractVector, A::PetrovGalerkinCFMM, x::AbstractVector)
     LinearMaps.mul!(y, A.fmm, x)
-    y += A.correctednears * x
+    mul!(y, A.correctednears, x, true, true)
     return y
 end
 
 function LinearMaps.mul!(
-    y::AbstractVector{K},
-    A::LinearMaps.TransposeMap{<:Any,<:PetrovGalerkinCFMM{K}},
-    x::AbstractVector{K},
-) where {K}
+    y::AbstractVector,
+    A::LinearMaps.TransposeMap{<:Any,<:PetrovGalerkinCFMM},
+    x::AbstractVector,
+)
     LinearMaps.mul!(y, transpose(A.lmap.fmm), x)
-    y += transpose(A.lmap.correctednears) * x
+    mul!(y, transpose(A.lmap.correctednears), x, true, true)
     return y
 end
 
 function LinearMaps.mul!(
-    y::AbstractVector{K},
-    A::LinearMaps.AdjointMap{<:Any,<:PetrovGalerkinCFMM{K}},
-    x::AbstractVector{K},
-) where {K}
+    y::AbstractVector,
+    A::LinearMaps.AdjointMap{<:Any,<:PetrovGalerkinCFMM},
+    x::AbstractVector,
+)
     LinearMaps.mul!(y, adjoint(A.lmap.fmm), x)
-    y += adjoint(A.lmap.correctednears) * x
+    mul!(y, adjoint(A.lmap.correctednears), x, true, true)
     return y
 end

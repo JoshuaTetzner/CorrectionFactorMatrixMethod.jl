@@ -44,7 +44,7 @@ end
         xfmm = x
     end
 
-    res = A.fmm.A * (A.Btrial * xfmm)
+    res = fmmresult(A.fmm, A.Btrial * xfmm)
     fmm_res1 = A.normals[:, 1] .* (res)[:, 2]
     fmm_res2 = A.normals[:, 2] .* (res)[:, 3]
     fmm_res3 = A.normals[:, 3] .* (res)[:, 4]
@@ -78,9 +78,9 @@ end
     end
 
     xx = transpose(A.Btest) * xfmm
-    fmm_res1 = (transpose(A.fmm) * (A.normals[:, 1] .* xx))[:, 2]
-    fmm_res2 = (transpose(A.fmm) * (A.normals[:, 2] .* xx))[:, 3]
-    fmm_res3 = (transpose(A.fmm) * (A.normals[:, 3] .* xx))[:, 4]
+    fmm_res1 = fmmresult(transpose(A.fmm), A.normals[:, 1] .* xx)[:, 2]
+    fmm_res2 = fmmresult(transpose(A.fmm), A.normals[:, 2] .* xx)[:, 3]
+    fmm_res3 = fmmresult(transpose(A.fmm), A.normals[:, 3] .* xx)[:, 4]
     fmm_res = -(fmm_res1 + fmm_res2 + fmm_res3)
 
     y .= A.op.alpha .* (transpose(A.Btrial) * fmm_res)

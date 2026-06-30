@@ -1,9 +1,16 @@
 # General Usage
 
-The main entry point is
-[`PetrovGalerkinCFMM`](@ref). It accepts a boundary integral operator, test and
-trial spaces, and an `H2Trees.BlockTree`. Keyword arguments control near and far
-quadrature, task parallelism, and whether a separate transpose FMM is built.
+The recommended entry point is [`CFMM.assemble`](@ref). It accepts a boundary
+integral operator and its test and trial spaces, constructs an optimized
+`H2Trees.BlockTree`, and returns a [`PetrovGalerkinCFMM`](@ref).
+
+```julia
+matrix = CFMM.assemble(operator, testspace, trialspace)
+```
+
+The lower-level `PetrovGalerkinCFMM` constructor accepts an existing tree.
+Keywords control near and far quadrature, scheduling, and whether a separate
+transpose FMM is built.
 
 The default FMM configuration uses ExaFMMt with expansion order `p = 8` and a
 critical leaf size of `ncrit = 50`.

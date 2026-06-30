@@ -42,7 +42,8 @@ include("nearinteractions.jl")
 include("operators/abstractoperators.jl")
 
 include("CFMM/petrovgalerkincfmm.jl")
+include("CFMM/assemble.jl")
 
-export PetrovGalerkinCFMM
+export CFMM, PetrovGalerkinCFMM
 
 end

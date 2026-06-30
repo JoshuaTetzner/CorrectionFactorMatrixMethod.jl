@@ -3,23 +3,19 @@ using TestItems
 using TestItemRunner
 using CorrectionFactorMatrixMethod
 
-@testset "Core interfaces" begin
-    CFMM = CorrectionFactorMatrixMethod
+include("test_core.jl")
 
-    options = CFMM.FMMFunctor(; p=10, ncrit=64)
-    @test options.p == 10
-    @test options.ncrit == 64
+using BEAST
+using CompScienceMeshes
 
-    quadrature = CFMM.defaultfarquadstrat(nothing, nothing, nothing)
-    @test quadrature.outer_rule == 3
-    @test quadrature.inner_rule == 3
+include("CFMMBEAST/test_CFMMBEAST.jl")
 
-    matrix = [2.0 1.0; -1.0 3.0]
-    vector = [1.0, 2.0]
-    @test CFMM.FMM(matrix) * vector ≈ matrix * vector
-    @test transpose(CFMM.FMM(matrix, transpose(matrix))) * vector ≈
-        transpose(matrix) * vector
-end
+using ExaFMMt
+
+include("CFMMExaFMMt/test_CFMMExaFMMt.jl")
+
+include("test_utils.jl")
+include("test_operators.jl")
 
 @testitem "Code quality (Aqua.jl)" begin
     using Aqua

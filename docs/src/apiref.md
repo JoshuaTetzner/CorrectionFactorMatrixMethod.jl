@@ -1,7 +1,7 @@
 # API Reference
 
 ```@autodocs
-Modules = [CorrectionFactorMatrixMethod]
+Modules = [CorrectionFactorMatrixMethod, CorrectionFactorMatrixMethod.CFMM]
 Private = true
 Order = [:type, :function]
 ```

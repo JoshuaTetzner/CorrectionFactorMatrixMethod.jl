@@ -114,6 +114,13 @@ function setup(spoints, tpoints, options)
     return error("This function has to be implemented for ", typeof(options))
 end
 
+function fmmresult end
+
+fmmresult(fmm::FMM, x) = fmmresult(fmm.A, x)
+fmmresult(fmm::LinearMaps.TransposeMap{<:Any,<:FMM}, x) = fmmresult(fmm.lmap.Aᵀ, x)
+fmmresult(fmm::SymmetricFMM, x) = fmmresult(fmm.A, x)
+fmmresult(fmm::LinearMaps.TransposeMap{<:Any,<:SymmetricFMM}, x) = fmmresult(fmm.lmap.A, x)
+
 function setup_fmm(
     spoints::Matrix{F}, tpoints::Matrix{F}, options; computetransposeadjoint=false
 ) where {F<:Real}
@@ -128,17 +135,18 @@ function (fmmfunctor::FMMFunctor)(
     trialspace;
     farquadstrat=defaultfarquadstrat(operator, testspace, trialspace),
     computetransposeadjoint=false,
-    ntasks=Threads.nthreads(),
+    scheduler=DynamicScheduler(),
 )
     testsrcs, testqp = sources(testspace, farquadstrat.outer_rule)
     trialsrcs, trialqp = sources(trialspace, farquadstrat.inner_rule)
+    computetransposeadjoint |= testsrcs != trialsrcs
 
     fmm = setup_fmm(
-        testsrcs,
         trialsrcs,
+        testsrcs,
         fmmfunctor(operator);
         computetransposeadjoint=computetransposeadjoint,
     )
 
-    return fmmfunctor(operator, testspace, trialspace, testqp, trialqp, fmm; ntasks=ntasks)
+    return fmmfunctor(operator, testspace, trialspace, testqp, trialqp, fmm; scheduler)
 end
