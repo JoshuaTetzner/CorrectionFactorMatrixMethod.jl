@@ -16,6 +16,20 @@ struct ExaFMMtFunctor <: FMMFunctor
     ncrit::Int
 end
 
+"""
+    FMMFunctor(; p=8, ncrit=50)
+
+Configure the fast multipole method used for the far interactions.
+
+`p` is the expansion order and `ncrit` the critical leaf size, i.e. the maximum
+number of quadrature points per box. A larger `p` increases accuracy and cost,
+while `ncrit` trades tree depth against the size of the direct near-field
+blocks.
+
+The returned functor is passed as the `fmmfunctor` keyword to
+[`CFMM.assemble`](@ref) and [`PetrovGalerkinCFMM`](@ref); its default targets
+the ExaFMMt backend.
+"""
 FMMFunctor(; p=8, ncrit=50) = ExaFMMtFunctor(p, ncrit)
 
 function (functor::ExaFMMtFunctor)(operator)

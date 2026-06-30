@@ -37,13 +37,14 @@ function assemble(
     trialspace;
     fmmfunctor=FMMFunctor(),
     tree=nothing,
-    minhalfsize=defaultminhalfsize(testspace, trialspace),
+    minhalfsize=nothing,
     testminvalues=defaultminvalues(fmmfunctor),
     trialminvalues=defaultminvalues(fmmfunctor),
     treeoptions=(;),
     kwargs...,
 )
     if isnothing(tree)
+        isnothing(minhalfsize) && (minhalfsize = defaultminhalfsize(testspace, trialspace))
         tree = H2Trees.TwoNTree(
             testspace,
             trialspace,
