@@ -1,6 +1,7 @@
 # API Reference
 
 ```@docs
+CorrectionFactorMatrixMethod
 CorrectionFactorMatrixMethod.CFMM
 ```
 
