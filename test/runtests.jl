@@ -53,4 +53,21 @@ end
         nothing
 end
 
+# Warn locally if pre-rendered documentation plots are older than their source.
+# Git sets identical mtimes on checkout so this only fires after a local edit.
+let
+    repo = dirname(@__DIR__)
+    scripts = map(
+        f -> joinpath(repo, "examples", f), ["efie.jl", "mfie.jl", "plotresults.jl"]
+    )
+    assets = joinpath(repo, "docs", "src", "assets", "examples")
+    newest = maximum(mtime, scripts)
+    for name in ["efie_results.html", "mfie_results.html"]
+        html = joinpath(assets, name)
+        isfile(html) &&
+            mtime(html) < newest &&
+            @warn "$name may be stale — run: julia --startup-file=no docs/render_examples.jl"
+    end
+end
+
 @run_package_tests verbose = true

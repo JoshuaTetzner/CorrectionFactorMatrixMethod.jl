@@ -84,5 +84,7 @@
         )
         @test matrix isa matrixtype
         @test size(matrix) == (length(space), length(space))
+        @test size(matrix, 1) == length(space)
+        @test size(matrix, 2) == length(space)
     end
 end

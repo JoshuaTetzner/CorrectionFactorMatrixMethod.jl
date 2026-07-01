@@ -26,6 +26,10 @@ end
 
 struct TestFMMFunctor <: CFM.FMMFunctor end
 
+# Minimal concrete subtype with no callable override — exercises the base stub.
+struct MinimalKernelMatrix{T} <: CFM.AbstractCorrectedKernelMatrix{T} end
+Base.size(::MinimalKernelMatrix) = (0, 0)
+
 CFM.scalartype(::TestCorrectionOperator) = Float64
 
 function CFM.AbstractCorrectedKernelMatrix(
@@ -57,6 +61,9 @@ end
     beastmatrix = CFM.BEASTCorrectedKernelMatrix{ComplexF64}(assembler, assembler)
     @test eltype(beastmatrix) == ComplexF64
     @test size(beastmatrix) == (3, 4)
+    @test size(beastmatrix, 1) == 3
+    @test size(beastmatrix, 2) == 4
+    @test_throws ErrorException size(beastmatrix, 3)
 
     testspace = [SVector(x, 0.0, 0.0) for x in 0.0:3.0]
     trialspace = [SVector(x, 0.0, 0.0) for x in 0.5:1.0:2.5]
@@ -94,11 +101,18 @@ end
     options = CFM.FMMFunctor(; p=10, ncrit=64)
     @test (options.p, options.ncrit) == (10, 64)
     @test CFM.defaultminvalues(options) == 64
+    @test CFM.defaultminvalues(TestFMMFunctor()) == 50  # base FMMFunctor fallback
     matrix = [2.0 1.0; -1.0 3.0]
     vector = [1.0, 2.0]
     @test CFM.FMM(matrix) * vector == matrix * vector
     @test transpose(CFM.FMM(matrix, transpose(matrix))) * vector ==
         transpose(matrix) * vector
+    # Adjoint is not implemented; use complex types to exercise the error branch
+    # (for real element types LinearMaps silently routes adjoint through transpose)
+    cmatrix = ComplexF64[2.0 1.0; -1.0 3.0]
+    cvector = ComplexF64[1.0, 2.0]
+    @test_throws ErrorException adjoint(CFM.FMM(cmatrix, transpose(cmatrix))) * cvector
+    @test_throws ErrorException adjoint(CFM.FMM(cmatrix)) * cvector
 
     far = LinearMap(matrix)
     correction = LinearMap([0.5 -0.5; 1.0 0.0])
@@ -108,4 +122,19 @@ end
     @test cfmm * vector == (far + correction) * vector
     @test transpose(cfmm) * vector == transpose(far + correction) * vector
     @test adjoint(cfmm) * vector == adjoint(far + correction) * vector
+
+    # Stubs that error when no extension is loaded — verify the error is thrown.
+    @test isnothing(CFM.AbstractCorrectedKernelMatrix(nothing, nothing, nothing))
+    @test isnothing(MinimalKernelMatrix{Float64}()(nothing, nothing, nothing))
+    @test isnothing(CFM.scalartype(nothing))
+    @test_throws ErrorException CFM.defaultnearquadstrat(nothing, nothing, nothing)
+    @test_throws ErrorException CFM.FMMFunctor()(nothing)
+    @test CFM.alpha(nothing) == 1.0
+    @test CFM.beta(nothing) == 1.0
+    @test_throws ErrorException CFM.sources(nothing, 2)
+    @test_throws ErrorException CFM.potentials(Matrix{Float64}(undef, 0, 0), nothing)
+    @test_throws ErrorException CFM.curlpotentials(Matrix{Float64}(undef, 0, 0), nothing)
+    @test_throws ErrorException CFM.divpotentials(Matrix{Float64}(undef, 0, 0), nothing)
+    @test_throws ErrorException CFM.normals(nothing)
+    @test_throws ErrorException CFM.setup(nothing, nothing, nothing)
 end

@@ -24,6 +24,7 @@ makedocs(;
             ["General Usage" => "manual/manual.md", "Examples" => "manual/examples.md"],
         "Details" => [
             "Correction-Factor Method" => "details/method.md",
+            "Supported Operators" => "details/operators.md",
             "Package Extensions" => "details/extensions.md",
         ],
         "Contributing" => "contributing.md",

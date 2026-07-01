@@ -7,6 +7,10 @@
     @test options isa ExaFMMt.FMMOptions
     @test (options.p, options.ncrit) == (8, 32)
 
+    # Helmholtz with wavenumber=0 must reduce to the Laplace path
+    @test functor(Helmholtz3D.singlelayer(; wavenumber=0.0)) isa ExaFMMt.LaplaceFMMOptions
+    @test functor(Helmholtz3D.hypersingular(; wavenumber=0.0)) isa ExaFMMt.LaplaceFMMOptions
+
     sources = [0.0 0.0 0.0; 1.0 0.0 0.0]
     targets = [0.0 1.0 0.0; 1.0 1.0 0.0]
     fmm = CFM.setup(sources, targets, options)
