@@ -40,7 +40,7 @@ excitation = Maxwell3D.planewave(;
 )
 rhs = assemble((n × excitation) × n, space)
 
-matrix = CFMM.assemble(operator, space)
+matrix = CFMM.assemble(operator, space, space)
 current, stats = Krylov.gmres(
     matrix, rhs; rtol=1.0e-4, itmax=200, history=true, verbose=1
 )

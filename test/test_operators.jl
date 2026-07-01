@@ -35,11 +35,12 @@
         testoperator(operator, scalarproblems)
     end
 
-    # Single-space convenience form assemble(op, space)
+    # Matching spaces use the symmetric FMM.
     scalar_problem = last(scalarproblems)
+    operator = Helmholtz3D.singlelayer(; wavenumber=k)
     square_matrix = CFMM.assemble(
-        Helmholtz3D.singlelayer(; wavenumber=k), scalar_problem.testspace
+        operator, scalar_problem.testspace, scalar_problem.testspace
     )
-    @test size(square_matrix) ==
-        (length(scalar_problem.testspace), length(scalar_problem.testspace))
+    @test square_matrix.fmm.fmm isa CorrectionFactorMatrixMethod.SymmetricFMM
+    @test_throws MethodError CFMM.assemble(operator, scalar_problem.testspace)
 end

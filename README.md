@@ -60,7 +60,7 @@ mesh = meshsphere(1.0, 0.4)
 space = raviartthomas(mesh)
 operator = Maxwell3D.singlelayer(; wavenumber=1.0)
 
-matrix = CFMM.assemble(operator, space)
+matrix = CFMM.assemble(operator, space, space)
 result = matrix * rand(scalartype(operator), numfunctions(space))
 ```
 
