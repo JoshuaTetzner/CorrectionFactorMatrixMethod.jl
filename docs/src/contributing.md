@@ -53,7 +53,7 @@ Extending to 2D would require:
 
 - A 2D `sources` / `potentials` implementation for 1D boundary curves.
 - Operators for the 2D Helmholtz and Laplace kernels
-  (``G(\bm{x},\bm{y}) = \tfrac{i}{4} H_0^{(1)}(k|\bm{x}-\bm{y}|)``).
+  (``G(\boldsymbol{x},\boldsymbol{y}) = \tfrac{i}{4} H_0^{(1)}(k|\boldsymbol{x}-\boldsymbol{y}|)``).
 - A 2D-capable FMM backend (e.g. FMMLIB2D).
 
 ### Additional BEM library integrations

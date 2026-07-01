@@ -8,7 +8,7 @@ using PlotlyJS
 
 include("plotresults.jl")
 
-mesh = meshsphere(1.0, 0.4)
+mesh = meshsphere(1.0, 0.1)
 trialspace = raviartthomas(mesh)
 testspace = buffachristiansen(mesh)
 

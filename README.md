@@ -33,7 +33,7 @@ FMM-backed map $A_\mathrm{FMM}$. The near interactions are evaluated with the
 boundary-element quadrature and corrected for the part already represented by
 the FMM [1]:
 
-$$\bm{A}\bm{x} \approx \bm{A}_\mathrm{FMM}\,\bm{x} + \left(\bm{A}_\mathrm{near} - \bm{A}_\mathrm{FMM,near}\right)\bm{x}.$$
+$$\boldsymbol{A}\boldsymbol{x} \approx \boldsymbol{A}_\mathrm{FMM}\,\boldsymbol{x} + \left(\boldsymbol{A}_\mathrm{near} - \boldsymbol{A}_\mathrm{FMM,near}\right)\boldsymbol{x}.$$
 
 ## Installation
 

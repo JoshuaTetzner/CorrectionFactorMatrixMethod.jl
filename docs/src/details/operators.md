@@ -16,20 +16,20 @@ functions on triangulated surfaces.
 The Helmholtz Green's function is
 
 ```math
-G(\bm{x},\bm{y}) = \frac{e^{ik|\bm{x}-\bm{y}|}}{4\pi|\bm{x}-\bm{y}|},
+G(\boldsymbol{x},\boldsymbol{y}) = \frac{e^{ik|\boldsymbol{x}-\boldsymbol{y}|}}{4\pi|\boldsymbol{x}-\boldsymbol{y}|},
 \quad k \in \mathbb{C}.
 ```
 
 Setting `wavenumber = 0` recovers the Laplace Green's function
-``G_0(\bm{x},\bm{y}) = 1/(4\pi|\bm{x}-\bm{y}|)``; the ExaFMMt backend
+``G_0(\boldsymbol{x},\boldsymbol{y}) = 1/(4\pi|\boldsymbol{x}-\boldsymbol{y}|)``; the ExaFMMt backend
 automatically switches to `LaplaceFMMOptions` in that case.
 
 | Operator | BEAST constructor | Mathematical form |
 |:---------|:------------------|:------------------|
-| Single-layer (V) | `Helmholtz3D.singlelayer(; wavenumber)` | ``(V u)(\bm{x}) = \int_\Gamma G(\bm{x},\bm{y})\,u(\bm{y})\,\mathrm{d}S(\bm{y})`` |
-| Double-layer (K) | `Helmholtz3D.doublelayer(; wavenumber)` | ``(K u)(\bm{x}) = \int_\Gamma \partial_{\bm{n}(\bm{y})} G(\bm{x},\bm{y})\,u(\bm{y})\,\mathrm{d}S(\bm{y})`` |
-| Transposed double-layer (K') | `Helmholtz3D.doublelayer_transposed(; wavenumber)` | ``(K' u)(\bm{x}) = \int_\Gamma \partial_{\bm{n}(\bm{x})} G(\bm{x},\bm{y})\,u(\bm{y})\,\mathrm{d}S(\bm{y})`` |
-| Hypersingular (W) | `Helmholtz3D.hypersingular(; wavenumber)` | ``(W u)(\bm{x}) = -\partial_{\bm{n}(\bm{x})} \int_\Gamma \partial_{\bm{n}(\bm{y})} G(\bm{x},\bm{y})\,u(\bm{y})\,\mathrm{d}S(\bm{y})`` |
+| Single-layer (V) | `Helmholtz3D.singlelayer(; wavenumber)` | ``(V u)(\boldsymbol{x}) = \int_\Gamma G(\boldsymbol{x},\boldsymbol{y})\,u(\boldsymbol{y})\,\mathrm{d}S(\boldsymbol{y})`` |
+| Double-layer (K) | `Helmholtz3D.doublelayer(; wavenumber)` | ``(K u)(\boldsymbol{x}) = \int_\Gamma \partial_{\boldsymbol{n}(\boldsymbol{y})} G(\boldsymbol{x},\boldsymbol{y})\,u(\boldsymbol{y})\,\mathrm{d}S(\boldsymbol{y})`` |
+| Transposed double-layer (K') | `Helmholtz3D.doublelayer_transposed(; wavenumber)` | ``(K' u)(\boldsymbol{x}) = \int_\Gamma \partial_{\boldsymbol{n}(\boldsymbol{x})} G(\boldsymbol{x},\boldsymbol{y})\,u(\boldsymbol{y})\,\mathrm{d}S(\boldsymbol{y})`` |
+| Hypersingular (W) | `Helmholtz3D.hypersingular(; wavenumber)` | ``(W u)(\boldsymbol{x}) = -\partial_{\boldsymbol{n}(\boldsymbol{x})} \int_\Gamma \partial_{\boldsymbol{n}(\boldsymbol{y})} G(\boldsymbol{x},\boldsymbol{y})\,u(\boldsymbol{y})\,\mathrm{d}S(\boldsymbol{y})`` |
 
 All four operators are tested with `lagrangec0d1` basis functions (Petrov–Galerkin,
 square systems). Other scalar basis function types may work but are not
@@ -43,8 +43,8 @@ functions on triangulated surfaces.
 
 | Operator | BEAST constructor | Mathematical form |
 |:---------|:------------------|:------------------|
-| Single-layer / EFIE (T) | `Maxwell3D.singlelayer(; wavenumber)` | ``(\mathcal{T}\bm{u})(\bm{x}) = \alpha\!\int_\Gamma G\,\bm{u}\,\mathrm{d}S + \beta\,\nabla\!\int_\Gamma G\,\nabla_\Gamma\!\cdot\bm{u}\,\mathrm{d}S`` |
-| Double-layer / MFIE (K) | `Maxwell3D.doublelayer(; wavenumber)` | ``(\mathcal{K}\bm{u})(\bm{x}) = \int_\Gamma \nabla G(\bm{x},\bm{y})\times\bm{u}(\bm{y})\,\mathrm{d}S(\bm{y})`` |
+| Single-layer / EFIE (T) | `Maxwell3D.singlelayer(; wavenumber)` | ``(\mathcal{T}\boldsymbol{u})(\boldsymbol{x}) = \alpha\!\int_\Gamma G\,\boldsymbol{u}\,\mathrm{d}S + \beta\,\nabla\!\int_\Gamma G\,\nabla_\Gamma\!\cdot\boldsymbol{u}\,\mathrm{d}S`` |
+| Double-layer / MFIE (K) | `Maxwell3D.doublelayer(; wavenumber)` | ``(\mathcal{K}\boldsymbol{u})(\boldsymbol{x}) = \int_\Gamma \nabla G(\boldsymbol{x},\boldsymbol{y})\times\boldsymbol{u}(\boldsymbol{y})\,\mathrm{d}S(\boldsymbol{y})`` |
 
 Both operators are tested with `raviartthomas` basis functions (Petrov–Galerkin,
 square systems).
