@@ -20,7 +20,6 @@ using ..CorrectionFactorMatrixMethod:
 
 """
     assemble(operator, testspace, trialspace; kwargs...)
-    assemble(operator, space; kwargs...)
 
 Assemble a matrix-free correction-factor FMM operator.
 
@@ -57,10 +56,6 @@ function assemble(
     return PetrovGalerkinCFMM(
         operator, testspace, trialspace, tree; fmmfunctor=fmmfunctor, kwargs...
     )
-end
-
-function assemble(operator, space; kwargs...)
-    return assemble(operator, space, space; kwargs...)
 end
 
 end

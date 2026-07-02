@@ -36,14 +36,24 @@ space = raviartthomas(mesh)
 wavenumber = 1.0
 operator = Maxwell3D.singlelayer(; wavenumber)
 excitation = Maxwell3D.planewave(;
-    direction=ẑ, polarization=x̂, wavenumber
+    direction=ẑ, polarization=x̂, wavenumber
 )
 rhs = assemble((n × excitation) × n, space)
 
-matrix = CFMM.assemble(operator, space)
+matrix = CFMM.assemble(operator, space, space)
 current, stats = Krylov.gmres(
     matrix, rhs; rtol=1.0e-4, itmax=200, history=true, verbose=1
 )
+```
+
+Far-field pattern (top left), scattered electric field magnitude in the ``yz``
+plane (top right), and surface-current magnitude (bottom):
+
+```@raw html
+<iframe src="../../assets/examples/efie_results.html"
+        style="width:100%;height:600px;border:none;"
+        loading="lazy">
+</iframe>
 ```
 
 The complete runnable example, including the plots, is in
@@ -67,7 +77,7 @@ wavenumber = frequency * √(permittivity * permeability)
 
 operator = Maxwell3D.doublelayer(; wavenumber)
 excitation = Maxwell3D.planewave(;
-    direction=ẑ, polarization=x̂, wavenumber
+    direction=ẑ, polarization=x̂, wavenumber
 )
 magneticfield = -1 / (im * permeability * frequency) * curl(excitation)
 rhs = assemble((n × magneticfield) × n, testspace)
@@ -78,6 +88,16 @@ matrix = doublelayer + 0.5 * identity
 current, stats = Krylov.gmres(
     matrix, rhs; rtol=1.0e-4, itmax=200, history=true, verbose=1
 )
+```
+
+Far-field pattern (top left), scattered electric field magnitude in the ``yz``
+plane (top right), and surface-current magnitude (bottom):
+
+```@raw html
+<iframe src="../../assets/examples/mfie_results.html"
+        style="width:100%;height:600px;border:none;"
+        loading="lazy">
+</iframe>
 ```
 
 The complete runnable example, including the plots, is in

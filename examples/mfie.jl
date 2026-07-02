@@ -8,7 +8,7 @@ using PlotlyJS
 
 include("plotresults.jl")
 
-mesh = meshsphere(1.0, 0.4)
+mesh = meshsphere(1.0, 0.1)
 trialspace = raviartthomas(mesh)
 testspace = buffachristiansen(mesh)
 
@@ -30,6 +30,7 @@ current, stats = Krylov.gmres(matrix, rhs; rtol=1.0e-4, itmax=200, history=true,
 @show stats
 @show norm(matrix * current - rhs) / norm(rhs)
 
+outdir = get(ENV, "CFMM_OUTPUT_DIR", @__DIR__)
 plotresults(
-    current, trialspace, excitation, wavenumber, joinpath(@__DIR__, "mfie_results.html")
+    current, trialspace, excitation, wavenumber, joinpath(outdir, "mfie_results.html")
 )

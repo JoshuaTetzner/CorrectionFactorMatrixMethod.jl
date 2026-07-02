@@ -6,8 +6,8 @@ the boundary-element quadrature and corrected for the interactions already
 represented by the FMM:
 
 ```math
-A x \approx A_{\mathrm{FMM}}x +
-\left(A_{\mathrm{near}} - A_{\mathrm{FMM,near}}\right)x.
+\boldsymbol{A}\boldsymbol{x} \approx \boldsymbol{A}_{\mathrm{FMM}}\boldsymbol{x} +
+\left(\boldsymbol{A}_{\mathrm{near}} - \boldsymbol{A}_{\mathrm{FMM,near}}\right)\boldsymbol{x}.
 ```
 
 The sparse correction blocks are selected from an `H2Trees.BlockTree`.

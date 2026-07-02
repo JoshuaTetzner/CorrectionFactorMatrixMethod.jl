@@ -22,21 +22,18 @@ extensions for
 [ExaFMMt.jl](https://github.com/JoshuaTetzner/ExaFMMt.jl), which are loaded
 automatically once these packages are available.
 
+Planned extensions include interfaces to additional FMM backends — a
+native Julia implementation and GPU-accelerated variants — as well as support
+for two-dimensional problems.
+
 ## Correction-Factor Matrix Method
 
 For a boundary-element matrix $A$, the far field is approximated by an
 FMM-backed map $A_\mathrm{FMM}$. The near interactions are evaluated with the
 boundary-element quadrature and corrected for the part already represented by
-the FMM:
+the FMM [1]:
 
-$$Ax \approx A_\mathrm{FMM}\,x + \left(A_\mathrm{near} - A_\mathrm{FMM,near}\right)x.$$
-
-The sparse correction blocks are selected from an
-[H2Trees.jl](https://github.com/djukic14/H2Trees.jl) tree. A matrix-vector
-product evaluates the FMM map first and then adds the sparse near correction.
-Transpose and adjoint products follow the corresponding `LinearMaps.jl`
-interfaces. Further details are given in the
-[documentation](https://JoshuaTetzner.github.io/CorrectionFactorMatrixMethod.jl/dev/details/method/).
+$$\boldsymbol{A}\boldsymbol{x} \approx \boldsymbol{A}_\mathrm{FMM}\,\boldsymbol{x} + \left(\boldsymbol{A}_\mathrm{near} - \boldsymbol{A}_\mathrm{FMM,near}\right)\boldsymbol{x}.$$
 
 ## Installation
 
@@ -63,17 +60,9 @@ mesh = meshsphere(1.0, 0.4)
 space = raviartthomas(mesh)
 operator = Maxwell3D.singlelayer(; wavenumber=1.0)
 
-matrix = CFMM.assemble(operator, space)
+matrix = CFMM.assemble(operator, space, space)
 result = matrix * rand(scalartype(operator), numfunctions(space))
 ```
-
-[`CFMM.assemble`](https://JoshuaTetzner.github.io/CorrectionFactorMatrixMethod.jl/dev/manual/manual/)
-constructs an optimized tree automatically. Existing trees and all lower-level
-FMM, quadrature, and scheduler options can be supplied as keywords. The
-returned operator implements the `LinearMaps.jl` interface, so it can be passed
-straight to an iterative solver. Runnable EFIE and MFIE examples are in the
-[`examples/`](examples) directory and in the
-[documentation](https://JoshuaTetzner.github.io/CorrectionFactorMatrixMethod.jl/dev/).
 
 ## References
 
