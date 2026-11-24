@@ -88,8 +88,9 @@ example scripts, so you will not accidentally forget this step.
 
 ## Development workflow
 
-Development targets the `dev` branch. Open a pull request from `dev` to
-`main` for stable releases and merge with a merge commit.
+Development happens on feature branches (e.g. `feature/<topic>`). Open a pull
+request from your feature branch directly against `main`; releases are tagged
+from `main`.
 
 Run the package checks locally with:
 
