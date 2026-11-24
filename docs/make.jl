@@ -15,7 +15,7 @@ makedocs(;
     sitename="CorrectionFactorMatrixMethod.jl",
     format=Documenter.HTML(;
         canonical="https://JoshuaTetzner.github.io/CorrectionFactorMatrixMethod.jl",
-        edit_link="dev",
+        edit_link="main",
         assets=String[],
     ),
     pages=[
@@ -41,6 +41,6 @@ end
 
 deploydocs(;
     repo="github.com/JoshuaTetzner/CorrectionFactorMatrixMethod.jl.git",
-    devbranch="dev",
+    devbranch="main",
     push_preview=false,
 )

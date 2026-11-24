@@ -67,7 +67,7 @@ end
 
     testspace = [SVector(x, 0.0, 0.0) for x in 0.0:3.0]
     trialspace = [SVector(x, 0.0, 0.0) for x in 0.5:1.0:2.5]
-    tree = TwoNTree(testspace, trialspace, 0.25; testminvalues=1, trialminvalues=1)
+    tree = CFM.blocktree(testspace, trialspace, 0.25; testminvalues=1, trialminvalues=1)
     farquadstrat = CFM.SafeDoubleNumQStrat(2, 3)
     correctednears = CFM.assemblecorrectednears(
         TestCorrectionOperator(farquadstrat),

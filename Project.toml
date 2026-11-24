@@ -1,6 +1,6 @@
 name = "CorrectionFactorMatrixMethod"
 uuid = "1b32fdd5-07c8-465a-bf7d-415ac82a78be"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Joshua Tetzner <joshua.tetzner@uni-rostock.de>"]
 
 [deps]
@@ -23,13 +23,13 @@ CFMMExaFMMt = ["ExaFMMt", "BEAST"]
 
 [compat]
 Aqua = "0.8"
-BEAST = "2"
+BEAST = "2.11"
 BlockSparseMatrices = "0.3"
-CompScienceMeshes = "0.11, 0.12"
+CompScienceMeshes = "1"
 ExaFMMt = "0.1"
 ExplicitImports = "1"
-H2Trees = "0.3"
-JET = "0.9, 0.10, 0.11"
+H2Trees = "0.4"
+JET = "0.9, 0.12, 0.13"
 JuliaFormatter = "2"
 LinearAlgebra = "1.10"
 LinearMaps = "3"

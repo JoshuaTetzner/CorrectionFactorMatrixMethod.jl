@@ -18,6 +18,10 @@ function testoperator(operator, problems)
     end
 end
 
+# The meshes are tiny, so `minvalues=8` is needed for the trees to split below the root
+# (H2Trees ≥ 0.4 no longer forces a first subdivision). For the far-separated problem the
+# error is set by the order of the far-field quadrature `SafeDoubleNumQStrat(3, 3)` against
+# BEAST's default reference quadrature, not by the FMM, so its tolerance carries some headroom.
 function testproblems()
     source = meshrectangle(1.0, 1.0, 0.3)
     scalarspace = lagrangec0d1(source)
@@ -26,7 +30,7 @@ function testproblems()
     vectorproblems = NamedTuple[]
 
     for (offset, tolerance) in
-        ((SVector(3.0, 0.0, 1.0), 2.0e-4), (SVector(0.2, 0.0, 0.2), 2.0e-3))
+        ((SVector(3.0, 0.0, 1.0), 5.0e-4), (SVector(0.2, 0.0, 0.2), 2.0e-3))
         target = translate(source, offset)
         testscalar = lagrangec0d1(target)
         testvector = raviartthomas(target)
@@ -35,8 +39,8 @@ function testproblems()
             (
                 testspace=testscalar,
                 trialspace=scalarspace,
-                tree=TwoNTree(
-                    testscalar, scalarspace, 0.1; testminvalues=50, trialminvalues=50
+                tree=CorrectionFactorMatrixMethod.blocktree(
+                    testscalar, scalarspace, 0.1; testminvalues=8, trialminvalues=8
                 ),
                 tolerance=tolerance,
             ),
@@ -46,8 +50,8 @@ function testproblems()
             (
                 testspace=testvector,
                 trialspace=vectorspace,
-                tree=TwoNTree(
-                    testvector, vectorspace, 0.1; testminvalues=50, trialminvalues=50
+                tree=CorrectionFactorMatrixMethod.blocktree(
+                    testvector, vectorspace, 0.1; testminvalues=8, trialminvalues=8
                 ),
                 tolerance=tolerance,
             ),
@@ -59,8 +63,8 @@ function testproblems()
         (
             testspace=scalarspace,
             trialspace=scalarspace,
-            tree=TwoNTree(
-                scalarspace, scalarspace, 0.1; testminvalues=50, trialminvalues=50
+            tree=CorrectionFactorMatrixMethod.blocktree(
+                scalarspace, scalarspace, 0.1; testminvalues=8, trialminvalues=8
             ),
             tolerance=2.0e-4,
         ),
@@ -70,8 +74,8 @@ function testproblems()
         (
             testspace=vectorspace,
             trialspace=vectorspace,
-            tree=TwoNTree(
-                vectorspace, vectorspace, 0.1; testminvalues=50, trialminvalues=50
+            tree=CorrectionFactorMatrixMethod.blocktree(
+                vectorspace, vectorspace, 0.1; testminvalues=8, trialminvalues=8
             ),
             tolerance=2.0e-4,
         ),

@@ -1,6 +1,9 @@
 import CorrectionFactorMatrixMethod: SafeDoubleQuadRule, SafeDoubleNumQStrat
 
-function BEAST.quadrule(
+# Since BEAST 2.11, `quadrule` and `momintegrals!` are folded into `integrate!`: one
+# method builds the rule for a quadrature strategy and hands it to `action`, the other
+# evaluates a concrete rule.
+function BEAST.integrate!(
     op::BEAST.IntegralOperator,
     local_test_basis,
     local_trial_basis,
@@ -10,8 +13,26 @@ function BEAST.quadrule(
     trial_element,
     quad_data,
     qs::SafeDoubleNumQStrat,
+    out=nothing,
+    test_space=nothing,
+    tptr=nothing,
+    trial_space=nothing,
+    bptr=nothing;
+    action::BEAST.QuadRuleAction,
 )
-    return SafeDoubleQuadRule(quad_data[1][1, test_id], quad_data[2][1, trial_id])
+    qrule = SafeDoubleQuadRule(quad_data[1][1, test_id], quad_data[2][1, trial_id])
+    return BEAST.integrate!(
+        action,
+        out,
+        op,
+        test_space,
+        tptr,
+        test_element,
+        trial_space,
+        bptr,
+        trial_element,
+        qrule,
+    )
 end
 
 function BEAST.quaddata(
@@ -28,7 +49,7 @@ function BEAST.quaddata(
     return test_quad_data, trial_quad_data
 end
 
-function BEAST.momintegrals!(biop, tshs, bshs, tcell, bcell, z, strat::SafeDoubleQuadRule)
+function BEAST.integrate!(biop, tshs, bshs, tcell, bcell, z, strat::SafeDoubleQuadRule)
     igd = BEAST.Integrand(biop, tshs, bshs, tcell, bcell)
     womps = strat.outer_quad_points
     wimps = strat.inner_quad_points
